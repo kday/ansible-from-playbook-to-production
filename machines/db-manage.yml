@@ -1,0 +1,17 @@
+---
+- hosts: tag_Group_db_manage
+  remote_user: {{ username }}
+  vars:
+    tag: "v1.0.0"
+    repo_name: "app-db"
+    app_user: "appdb"
+    repo_url: "git@github.com:{{ github_org }}/app-db.git"
+  roles:
+    - machine/python-app-git
+
+- hosts: tag_Group_db_manage
+  remote_user: {{ username }}
+  sudo: yes
+  roles:
+    - machine/db-manage
+

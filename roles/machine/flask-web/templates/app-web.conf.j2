@@ -1,0 +1,12 @@
+[program:web]
+command=/bin/bash -c "/var/venv/app-web/bin/python /var/venv/app-web/bin/gunicorn -b '0.0.0.0:5000' -w {{ gunicorn_workers }} app:app"
+autostart=true
+autorestart=true
+stopsignal=QUIT
+stdout_logfile=/var/log/app/web.log
+stderr_logfile=/var/log/app/web.error.log
+user=appweb
+directory=/var/www/app-web
+
+[group:app]
+programs=web

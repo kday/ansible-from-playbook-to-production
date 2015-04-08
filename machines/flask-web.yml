@@ -1,0 +1,17 @@
+---
+- hosts: tag_Group_flask_web
+  remote_user: {{ username }}
+  vars:
+    tag: "v1.0.1"
+    repo_name: "app-web"
+    app_user: "appweb"
+    repo_url: "git@github.com:{{ github_org }}/app-web.git"
+  roles:
+    - machine/python-app-git
+
+- hosts: tag_Group_flask_web
+  remote_user: {{ username }}
+  sudo: yes
+  roles:
+    - machine/flask-web
+

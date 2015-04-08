@@ -1,0 +1,4 @@
+spec/config.rb
+.vagrant
+*secret.yml
+rspec.xml

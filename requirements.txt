@@ -1,0 +1,9 @@
+Jinja2==2.7.3
+MarkupSafe==0.23
+PyYAML==3.11
+ansible==1.7.2
+paramiko==1.15.1
+passlib==1.6.2
+wsgiref==0.1.2
+boto
+

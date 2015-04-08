@@ -1,0 +1,21 @@
+import logging
+
+SECRET_KEY = '<secret key>'
+DEBUG = {{ debug }}
+LOG_LEVEL = {{ log_level }}
+LOG_FILE_NAME = '/var/log/app-web.log'
+ENV = {{ environment }}
+
+SQLALCHEMY_DATABASE_URI = 'mysql://{{ mysql_app_username }}:{{ mysql_app_db_pass }}@{{ mysql_hostname }}/{{ mysql_db_name }}'
+SQLALCHEMY_ECHO = False
+
+CACHE_DIR = '/tmp'
+
+MEMCACHE_HOST = '{{ memcache_host }}'
+MEMCACHE_PORT = '11211'
+
+SESSION_OPTS = {
+    'session.type': 'ext:memcached',
+    'session.url': '{{ memcache_host }}:11211',
+    'session.data_dir': './cache',
+}

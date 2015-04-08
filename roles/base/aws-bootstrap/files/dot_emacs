@@ -1,0 +1,3 @@
+;; create a backup file directory
+(setq backup-directory-alist
+'(("." . "~/.emacs_backups")))

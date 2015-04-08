@@ -1,0 +1,4 @@
+---
+configure_networking: true
+editor: emacs
+disable_admin_sudo_pass: false

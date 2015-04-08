@@ -1,0 +1,24 @@
+- hosts: localhost
+  gather_facts: False
+  vars:
+    ami_id: "ami-8e2b08e6" # Note: This is a base AMI w/ sudo password disabled for the admin user
+    aws_region: "us-east-1"
+  
+  tasks:
+    - name: provision test instance
+      ec2:
+        region: "{{ aws_region }}"
+        key_name: 'keyname'
+        group: 'launch-wizard-1'
+        instance_type: m3.medium
+        image: "{{ ami_id }}"
+        wait: true
+        exact_count: 1
+        count_tag:
+          Name: "{{ instance_name }}"
+        instance_tags:
+          Name: "test_{{ instance_name }}"
+          Group: "{{ instance_name }}"
+          Environment: "CI"
+
+    - pause: seconds=60

@@ -1,0 +1,66 @@
+- set_fact: repo_name="app-web"
+- set_fact: project_dir=/var/www/{{ repo_name }}
+- set_fact: package_name=app
+- set_fact: gunicorn_workers=4
+  
+- name: install system dependencies
+  apt: name={{ item }} state=present
+  with_items:
+    - mysql-client
+    - libmysqlclient-dev # Yes this is needed in addition to mysql-client
+    - libxml2-dev
+    - libxslt1-dev
+    - build-essential
+    - libfreetype6-dev
+    - python-imaging
+    - python-dev
+    - python2.7-dev
+    - supervisor
+
+- name: install project python dependencies
+  pip: requirements={{ project_dir }}/requirements.txt virtualenv=/var/venv/{{ repo_name }}
+  
+- name: create application config
+  template: src=config.py.j2 dest={{ project_dir }}/app/config.py
+
+- name: install nginx
+  apt: pkg=nginx state=installed update_cache=true
+  notify:
+    - start nginx
+
+- name: disable default sites from nginx
+  file: path=/etc/nginx/sites-enabled/{{ item }} state=absent
+  with_items:
+    - default
+  notify:
+    - reload nginx
+    
+- name: remove default sites from nginx
+  file: path=/etc/nginx/sites-available/{{ item }} state=absent
+  with_items:
+    - default
+  notify:
+    - reload nginx
+
+- name: add app nginx config to sites-available
+  template: src=app-nginx.conf.j2 dest=/etc/nginx/sites-available/app
+  notify:
+    - reload nginx
+
+- name: enable app nginx conf
+  file: src=/etc/nginx/sites-available/app dest=/etc/nginx/sites-enabled/app state=link
+  notify:
+    - reload nginx
+    
+- name: create supervisor config
+  template: src=appalc-web.conf.j2 dest=/etc/supervisor/conf.d/appalc-web.conf
+  
+- name: create supervisor log directory
+  file: path=/var/log/app state=directory owner=appalcweb group=www-data mode=660
+
+- name: reload supervisor
+  service: name=supervisor state=restarted
+
+- supervisorctl: name=app state=started
+
+# curl to localhost, response code should be XXX

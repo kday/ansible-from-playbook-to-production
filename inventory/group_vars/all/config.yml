@@ -1,0 +1,4 @@
+---
+username: myname
+aws_region: "us-east-1"
+github_org: 'my-org'

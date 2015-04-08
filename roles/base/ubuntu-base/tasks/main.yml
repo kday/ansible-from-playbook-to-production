@@ -1,0 +1,48 @@
+---
+  - name: install apt dependencies
+    apt: name={{ item }} state=present update_cache=yes
+    with_items:
+      - unattended-upgrades
+      - make
+      - ufw
+      - htop
+      - ruby # Needed for scout to run
+      - emacs
+      - python-pip
+      - python-dev
+
+  - name: set nofile settings
+    lineinfile:
+      dest=/etc/security/limits.conf
+      state=present
+      line='{{ item }}'
+    with_items:
+      - '* soft nofile 512000'
+      - '* hard nofile 512000'
+      - 'root soft nofile 512000'
+      - 'root hard nofile 512000'
+
+    # Need to set pam limits for nofile settings to work
+  - name: turn on pam limits
+    lineinfile: dest=/etc/pam.d/common-session state=present line='session required pam_limits.so'
+    notify:
+      - restart ssh
+
+  - name: ufw set deny policy
+    ufw: policy=deny
+
+  - name: open port 22 in firewall
+    ufw: rule=allow name=OpenSSH
+
+  - name: enable ufw
+    ufw: state=enabled
+    
+  - name: set timezone
+    template: src=timezone.j2 dest=/etc/timezone
+    notify: update tzdata
+
+  - name: add scout user
+    user: name=scout createhome=no
+
+  - name: install scout gem
+    gem: name=scout state=present executable=/usr/bin/gem user_install=no

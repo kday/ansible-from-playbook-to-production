@@ -1,0 +1,29 @@
+- set_fact: lc_asg_name="{{ instance_group }}_{{ version }}_{{ lookup('pipe', 'date +%Y-%m-%d-%H%M%S') }}"
+  
+- name: create launch configuration
+  ec2_lc:
+    region: "{{ aws_region }}"
+    image_id: "{{ ami_result.image_id }}"
+    instance_type: "{{ instance_type }}"
+    name: "{{ lc_asg_name }}"
+  register: lc_result
+
+- debug: msg="{{ lc_result }}"
+
+- name: create auto scaling group
+  ec2_asg:
+    region: "{{ aws_region }}"
+    availability_zones: ['us-east-1b']
+    name: "{{ name }}"
+    launch_config_name: "{{ lc_asg_name }}"
+    health_check_period: 30
+    state: present
+    min_size: "{{ asg_min_size }}"
+    max_size: "{{ asg_max_size }}"
+    desired_capacity: "{{ asg_desired_capacity }}"
+    tags:
+      - Environment: "{{ environment }}"
+      - Name: "{{ name }}"
+  register: asg_result
+      
+- debug: msg="{{ asg_result }}"

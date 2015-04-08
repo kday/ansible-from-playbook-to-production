@@ -1,0 +1,5 @@
+- name: terminate temporary instance
+  ec2:
+    state: absent
+    region: "{{ aws_region }}"
+    instance_ids: "{{ terminate_instance_id }}"

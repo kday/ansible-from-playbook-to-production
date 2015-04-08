@@ -1,0 +1,35 @@
+---
+  - name: update apt cache
+    apt: update_cache=yes
+
+  - name: apt upgrade
+    apt: upgrade=yes
+
+  - name: disable root login via SSH
+    lineinfile: dest=/etc/ssh/sshd_config regexp="^PermitRootLogin" line="PermitRootLogin no" state=present
+    notify:
+      - restart ssh
+
+  - name: add admin user
+    user: name={{ username }} createhome=yes password={{ user_password }} shell=/bin/bash update_password=always
+
+  - name: add admin user to sudoers
+    lineinfile: dest=/etc/sudoers state=present line='{{ username }}   ALL=(ALL) ALL'
+    when: not disable_admin_sudo_pass
+
+  - name: disable sudo password for admin user
+    lineinfile: dest=/etc/sudoers state=present line='{{ username }}   ALL=(ALL) NOPASSWD:ALL'
+    when: disable_admin_sudo_pass
+
+  - name: disable requiretty for admin user
+    lineinfile: dest=/etc/sudoers state=present line='Defaults:{{ username }} !requiretty'
+    
+  - name: set editor for admin user
+    lineinfile: dest=/home/{{ username }}/.bashrc state=present line='EDITOR={{ editor }}; export EDITOR'
+
+  - name: set emacs config for admin user
+    copy: src=dot_emacs dest=/home/{{ username }}/.emacs
+    when: editor == 'emacs'
+
+  - name: add ssh key
+    authorized_key: user={{ username }} key="{{ lookup('file', 'app_ops_rsa.pub') }}"

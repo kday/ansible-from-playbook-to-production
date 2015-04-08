@@ -1,0 +1,7 @@
+debug: False
+log_level: "logging.INFO"
+environment: production
+year: 2014
+redis_mock_host: localhost
+redis_ind_host: localhost
+memcache_host: localhost

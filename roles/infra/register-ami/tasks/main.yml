@@ -1,0 +1,19 @@
+- name: register AMI from instance ID
+  ec2_ami:
+    region: "{{ aws_region }}"
+    instance_id: "{{ ami_instance.tagged_instances.0.id }}"
+    name: "{{ name }}"
+    wait: yes
+  register: ami_result
+
+- debug: msg="{{ ami_result }}"
+
+- name: take snapshot of AMI so that it can actually be used
+  ec2_snapshot:
+    region: "{{ aws_region }}"
+    instance_id: "{{ ami_instance.tagged_instances.0.id }}"
+    device_name: /dev/sda1
+    wait: yes
+  register: snapshot_result
+        
+- debug: msg="{{ snapshot_result }}"

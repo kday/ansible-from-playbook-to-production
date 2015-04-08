@@ -1,0 +1,1 @@
+Specinfra.configuration.sudo_password = 'sudo password for test server'

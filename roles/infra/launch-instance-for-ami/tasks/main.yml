@@ -1,0 +1,22 @@
+- name: launch instance for AMI
+  ec2:
+    region: "{{ aws_region }}"
+    key_name: 'keyname'
+    group: 'launch-wizard-1'
+    instance_type: m3.medium
+    image: "{{ ami_id }}"
+    wait: true
+    exact_count: 1
+    count_tag:
+      Name: "ami_builder_{{ instance_group }}"
+    instance_tags:
+      Name: "ami_builder_{{ instance_group }}"
+      Group: "{{ instance_group }}"
+      Environment: "{{ environment }}"
+      AMIOnly: "True"
+  register: ami_instance
+      
+- pause: seconds=60
+
+- name: add host to group
+  add_host: name={{ ami_instance.tagged_instances.0.public_ip }} groups={{ host_group }}

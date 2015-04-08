@@ -1,0 +1,4 @@
+mysql_hostname: 127.0.0.1
+mysql_db_name: my_database
+mysql_app_username: my_user
+mysql_app_db_pass: secret

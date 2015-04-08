@@ -1,0 +1,42 @@
+- hosts: localhost
+  gather_facts: False
+  vars:
+    ami_id: "ami-162c097e"
+    instance_group: db_manage
+    tag: "v1.0.1"
+    environment: Staging
+    host_group: just_created_staging
+  roles:
+    - infra/launch-instance-for-ami
+
+  ### START MACHINE ROLES ###
+      
+- hosts: just_created_staging
+  remote_user: {{ username }}
+  vars:
+    tag: "v1.0.1"
+    repo_name: "app-db"
+    app_user: "appdb"
+    repo_url: "git@github.com:{{ github_org }}/app-db.git"
+  roles:
+    - machine/python-app-git
+
+- hosts: just_created_staging
+  remote_user: {{ username }}
+  sudo: yes
+  roles:
+    - machine/db-manage
+
+  ### END MACHINE ROLES ###
+    
+- hosts: localhost
+  gather_facts: False
+  vars:
+    instance_group: db_manage
+    version: "v1.0.1"
+    terminate_instance_id: "{{ ami_instance.tagged_instances.0.id }}"
+    name: "{{ instance_group }} {{ version }} {{ lookup('pipe', 'date +%Y-%m-%d-%H%M%S') }}"
+  roles:
+    - infra/register-ami
+    - infra/terminate-temporary-instance
+    - infra/create-lc-and-asg

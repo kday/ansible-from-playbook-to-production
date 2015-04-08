@@ -1,0 +1,41 @@
+{
+    "variables": {
+        "aws_access_key": "",
+        "aws_secret_key": ""
+    },
+    "builders": [
+        {
+        "type": "amazon-ebs",
+        "access_key": "{{ user `aws_access_key` }}",
+        "secret_key": "{{ user `aws_secret_key` }}",
+        "region": "us-east-1",
+        "source_ami": "ami-522e753a",
+        "instance_type": "m3.medium",
+        "ssh_username": "ubuntu",
+        "ami_name": "base ubuntu 14.04 {{ isotime \"2006-01-02\" }} {{ timestamp }}"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "inline": [
+                "sleep 10",
+                "sudo apt-get install software-properties-common",
+                "sudo apt-add-repository ppa:ansible/ansible -y",
+                "sudo apt-get update",
+                "sudo apt-get install ansible -y",
+                "ansible --version"
+                ]
+        },
+        {
+            "type": "ansible-local",
+            "playbook_file": "images/base-image.yml",
+            "role_paths": [
+                "roles/base/aws-bootstrap",
+                "roles/base/ubuntu-base"
+            ],
+            "group_vars": "inventory/group_vars",
+            "host_vars": "inventory/host_vars"
+        }
+    ],
+}

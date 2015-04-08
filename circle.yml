@@ -1,0 +1,14 @@
+dependencies:
+  override:
+    - pip install -r requirements.txt
+    - bundle install
+test:
+  pre:
+    - echo "Specinfra.configuration.sudo_password = 'secret'" >> spec/config.rb
+    - mv inventory/group_vars/all/secret.ci.yml inventory/group_vars/all/secret.yml
+    - build/destroy_ci_instances.sh
+    - build/create_ci_ssh_keys.sh
+  override:
+    - build/test_all.sh
+  post:
+    - build/destroy_ci_instances.sh

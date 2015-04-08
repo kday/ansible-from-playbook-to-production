@@ -1,0 +1,47 @@
+- hosts: localhost
+  gather_facts: False
+  vars:
+    ami_id: "ami-162c097e"
+    instance_group: flask_web
+    tag: "v1.0.0"
+    environment: Production
+    host_group: just_created_prod
+  roles:
+    - infra/launch-instance-for-ami
+
+  ### START MACHINE ROLES ###
+      
+- hosts: just_created_prod
+  remote_user: {{ username }}
+  vars:
+    tag: "v1.0.0"
+    repo_name: "app-web"
+    app_user: "appweb"
+    repo_url: "git@github.com:{{ github_org }}/app-web.git"
+  roles:
+    - machine/python-app-git
+
+- hosts: just_created_prod
+  remote_user: {{ username }}
+  sudo: yes
+  roles:
+    - machine/flask-web
+
+  ### END MACHINE ROLES ###
+    
+- hosts: localhost
+  gather_facts: False
+  vars:
+    instance_group: flask_web
+    version: "v1.0.0"
+    terminate_instance_id: "{{ ami_instance.tagged_instances.0.id }}"
+    name: "{{ instance_group }} {{ version }} {{ lookup('pipe', 'date +%Y-%m-%d-%H%M%S') }}"
+    instance_type: "m3.xlarge"
+    asg_min_size: 2
+    asg_max_size: 20
+    asg_desired_capacity: 3
+    environment: "Production"
+  roles:
+    - infra/register-ami
+    - infra/terminate-temporary-instance
+    - infra/create-lc-and-asg

@@ -1,0 +1,61 @@
+- set_fact: tmp_dir=/tmp/deploy-artifacts
+- set_fact: dest_dir=/var/www/{{ repo_name }}
+- set_fact: tarball_name='release-{{ repo_name }}-{{ tag }}.tgz'
+  
+- name: create app user
+  sudo: yes
+  user: name={{ app_user }} shell=/bin/bash createhome=yes
+
+- name: add admin user to app user group
+  sudo: yes
+  user: name={{ username }} groups={{ app_user }}
+
+- name: install virtualenv
+  sudo: yes
+  pip: name=virtualenv state=present
+
+- name: create virtualenv directory
+  sudo: yes
+  file: path=/var/venv/{{ repo_name }} state=directory owner={{ app_user }} recurse=yes mode=775
+
+- name: create local tmp directory for code artifacts
+  local_action: file path={{ tmp_dir }} state=directory
+
+- name: download release tarball from github
+  environment:
+    ORG: '{{ github_org }}'
+    REPO: '{{ repo_name }}'
+    TAG: '{{ tag }}'
+  local_action: script download-release-tarball.py
+
+- name: set permissions for project directory remote host
+  sudo: yes
+  file: path=/var/www state=directory owner={{ app_user }} group=www-data mode=755 recurse=yes
+
+- name: copy and extract the tarball onto the remote host
+  sudo: yes
+  unarchive: src={{ tmp_dir }}/{{ tarball_name }} dest=/var/www copy=yes
+
+- name: delete project directory if it exists
+  sudo: yes
+  file: path={{ dest_dir }} state=absent
+    
+- name: rename extracted project directory
+  sudo: yes
+  shell: mv /var/www/{{ github_org }}-{{ repo_name }}-* {{ dest_dir }}
+  
+- name: set permissions for project directory remote host
+  sudo: yes
+  file: path={{ dest_dir }} state=directory owner={{ app_user }} group=www-data mode=755 recurse=yes
+
+- name: add VERSION file with tag to root of project
+  sudo: yes
+  copy: content={{ tag }} dest={{ dest_dir }}/VERSION
+  
+- name: delete local artifact
+  local_action: file path={{ tmp_dir }}/{{ tarball_name }} state=absent
+
+- name: create log file with correct permissions
+  sudo: yes
+  file: path=/var/log/{{ repo_name }}.log owner={{ app_user }} group=www-data mode=660 state=touch
+

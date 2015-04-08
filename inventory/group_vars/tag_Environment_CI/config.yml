@@ -1,0 +1,2 @@
+local_ssh_key_dir: /home/ubuntu/.ssh
+memcache_host: 'localhost'
