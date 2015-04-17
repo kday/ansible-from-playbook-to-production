@@ -1,6 +1,10 @@
 # Introduction to Ansible: From Playbook to Production
 This is an example repo that shows how to use Ansible from the first playbook all the way through CI testing and production deployments.
 
+The slides from a presentation on this repo can be found here:
+
+https://speakerdeck.com/kday/introduction-to-ansible-from-playbook-to-production
+
 # Requirements
 
 There are both Python and Ruby requirements.
