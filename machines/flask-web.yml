@@ -1,6 +1,6 @@
 ---
 - hosts: tag_Group_flask_web
-  remote_user: {{ username }}
+  remote_user: "{{ username }}"
   vars:
     tag: "v1.0.1"
     repo_name: "app-web"
@@ -10,7 +10,7 @@
     - machine/python-app-git
 
 - hosts: tag_Group_flask_web
-  remote_user: {{ username }}
+  remote_user: "{{ username }}"
   sudo: yes
   roles:
     - machine/flask-web

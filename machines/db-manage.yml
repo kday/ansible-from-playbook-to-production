@@ -1,6 +1,6 @@
 ---
 - hosts: tag_Group_db_manage
-  remote_user: {{ username }}
+  remote_user: "{{ username }}"
   vars:
     tag: "v1.0.0"
     repo_name: "app-db"
@@ -10,7 +10,7 @@
     - machine/python-app-git
 
 - hosts: tag_Group_db_manage
-  remote_user: {{ username }}
+  remote_user: "{{ username }}"
   sudo: yes
   roles:
     - machine/db-manage
