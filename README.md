@@ -16,3 +16,8 @@ Install the Python requirements via pip:
 Install the Ruby requirements via bundler:
 
 `bundle install`
+
+# Building an Environment
+
+## Create the database first
+`ansible-playbook environments/prod/mysql-rds.yml -i inventory/pseudo_localhost`
