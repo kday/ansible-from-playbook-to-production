@@ -8,7 +8,7 @@
     - name: provision test instance
       ec2:
         region: "{{ aws_region }}"
-        key_name: 'keyname'
+        key_name: ci-keypair
         group: 'launch-wizard-1'
         instance_type: m3.medium
         image: "{{ ami_id }}"
